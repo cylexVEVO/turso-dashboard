@@ -18,10 +18,10 @@ for (const enumKey in Region) {
 const CreateDatabaseModal = (props: {hide: () => void}) => {
   const {mutate, isLoading} = useMutation({
     mutationFn: async (args: CreateDatabaseArgs) => {
-      let database = await globalThis.turso.createDatabase(args);
+      const database = await globalThis.turso.createDatabase(args);
       if (database === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
       if (database === TursoError.DATABASE_LIMIT) return window.alert("you've hit the db limit");
-      let instance = await globalThis.turso.createInstance({dbName: database.database.Name, instance_name: "", password: database.password, ...args});
+      const instance = await globalThis.turso.createInstance({dbName: database.database.Name, instance_name: "", password: database.password, ...args});
       if (instance === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
       if (instance === TursoError.DATABASE_LIMIT) return window.alert("you've hit the db limit");
       return {
@@ -115,14 +115,15 @@ export default function Home() {
   const {isLoading, error, data} = useQuery({
     queryKey: ["databaseList"],
     queryFn: async () => {
-      return await globalThis.turso.listDatabases(); 
+      const databases = await globalThis.turso.listDatabases();
+      if (databases === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
+      return databases;
     }
   });
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   if (error) return "Error.";
-  if (data === TursoError.AUTHENTICATED_REQUIRED) return "Invalid token.";
 
   return (
     <main className={`container mx-auto py-8 ${inter.className}`}>

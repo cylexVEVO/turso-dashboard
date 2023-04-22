@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Inter } from 'next/font/google'
 import { useRouter } from 'next/router';
 import { ChevronRightIcon } from '@heroicons/react/24/solid';
+import { TursoError } from '@/turso';
 
 // TODO: add instance deletions
 
@@ -13,7 +14,9 @@ export default function Home() {
       queryKey: ["database", router.query.name],
       queryFn: async () => {
         if (router.query.name === undefined || router.query.instanceName === undefined) return false;
-        return await globalThis.turso.getDatabase(router.query.name as string);
+        const database = await globalThis.turso.getDatabase(router.query.name as string);
+        if (database === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
+        return database;
       }
   });
 
@@ -21,7 +24,9 @@ export default function Home() {
     queryKey: ["database_instance", router.query.name, router.query.instanceName, !!data],
     queryFn: async () => {
       if (router.query.name === undefined || router.query.instanceName === undefined || !data) return false;
-      return await globalThis.turso.getDatabaseInstance(data.Name, router.query.instanceName as string);
+      const instance = await globalThis.turso.getDatabaseInstance(data.Name, router.query.instanceName as string);
+      if (instance === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
+      return instance;
     }
   });
 

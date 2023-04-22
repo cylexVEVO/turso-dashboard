@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { ChevronRightIcon, TrashIcon } from '@heroicons/react/24/solid';
 import { useContext } from 'react';
 import { queryClient } from '@/pages/_app';
+import { TursoError } from '@/turso';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -13,7 +14,9 @@ export default function Home() {
     queryKey: ["database", router.query.name],
     queryFn: async () => {
       if (router.query.name === undefined) return false;
-      return await globalThis.turso.getDatabase(router.query.name as string);
+      const database = await globalThis.turso.getDatabase(router.query.name as string);
+      if (database === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
+      return database;
     }
   });
 
@@ -21,7 +24,9 @@ export default function Home() {
       queryKey: ["database_instances", router.query.name, !!data],
       queryFn: async () => {
         if (router.query.name === undefined || !data) return false;
-        return await globalThis.turso.listDatabaseInstances(data.Name);
+        const instances = await globalThis.turso.listDatabaseInstances(data.Name);
+        if (instances === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
+        return instances;
       }
   });
 
