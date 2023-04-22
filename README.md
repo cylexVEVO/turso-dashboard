@@ -3,7 +3,9 @@
 1. Start the proxy by running `node proxy.js`, this is required to get around CORS restrictions.
 2. Start the application with `npm run dev`, and navigate to `localhost:3000` to start using it!
 
-# Additional
-This project is not created or endorsed by Turso. If the creators of Turso would like me to take it down for some reason, please contact me on Discord (I'm in the Discord server).
+# Roadmap
+- Individual instance creation and deletion
+- Improved deletion flows (confirmation, loading indicators)
 
-This project is also in its early stages and currently only supports read operations. Creation and deletion operations will be implemented some time in the future.
+# Additional
+This project is not created or endorsed by Turso.
