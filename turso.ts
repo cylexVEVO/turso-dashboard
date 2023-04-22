@@ -26,6 +26,8 @@ export enum Region {
     scl = "scl",
     sea = "sea",
     sin = "sin",
+    sjc = "sjc",
+    syd = "syd",
     waw = "waw",
     yul = "yul",
     yyz = "yyz"
