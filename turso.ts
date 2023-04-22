@@ -1,36 +1,34 @@
 export enum Region {
-    ams,
-    arn,
-    bog,
-    bos,
-    cdg,
-    den,
-    dfw,
-    ewr,
-    fra,
-    gdl,
-    gig,
-    gru,
-    hkg,
-    iad,
-    jnb,
-    lax,
-    lhr,
-    maa,
-    mad,
-    mia,
-    nrt,
-    ord,
-    otp,
-    qro,
-    scl,
-    sea,
-    sin,
-    sjc,
-    syd,
-    waw,
-    yul,
-    yyz
+    ams = "ams",
+    arn = "arn",
+    bog = "bog",
+    bos = "bos",
+    cdg = "cdg",
+    den = "den",
+    dfw = "dfw",
+    ewr = "ewr",
+    fra = "fra",
+    gdl = "gdl",
+    gig = "gig",
+    gru = "gru",
+    hkg = "hkg",
+    iad = "iad",
+    jnb = "jnb",
+    lax = "lax",
+    lhr = "lhr",
+    maa = "maa",
+    mad = "mad",
+    mia = "mia",
+    nrt = "nrt",
+    ord = "ord",
+    otp = "otp",
+    qro = "qro",
+    scl = "scl",
+    sea = "sea",
+    sin = "sin",
+    waw = "waw",
+    yul = "yul",
+    yyz = "yyz"
 }
 
 export type Database = {
@@ -50,6 +48,25 @@ export type DatabaseInstance = {
     type: "primary" | "replica",
     region: Region,
     hostname: string
+};
+
+export enum TursoError {
+    AUTHENTICATED_REQUIRED,
+    DATABASE_LIMIT
+}
+
+export type CreateDatabaseArgs = {
+    name: string,
+    region: Region,
+    image: "latest" | "canary"
+};
+
+export type CreateDatabaseInstanceArgs = {
+    dbName: string,
+    instance_name: string,
+    password: string,
+    region: Region,
+    image: "latest" | "canary"
 };
 
 export class Turso {
@@ -72,8 +89,35 @@ export class Turso {
         return res;
     }
 
+    private async post(endpoint: string, body: Record<string, any>) {
+        const res = await fetch(`${this.url}/${endpoint}`, {
+            credentials: "include",
+            headers: {
+                "content-type": "application/json",
+                "authorization": `Bearer ${this.token}`
+            },
+            method: "POST",
+            body: JSON.stringify(body)
+        });
+
+        return res;
+    }
+
+    private async delete(endpoint: string) {
+        const res = await fetch(`${this.url}/${endpoint}`, {
+            credentials: "include",
+            headers: {
+                "authorization": `Bearer ${this.token}`
+            },
+            method: "DELETE"
+        });
+
+       return res;
+    }
+
     async listDatabases() {
         const res = await this.get("databases");
+        if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
         const databases = (await res.json()).databases as Database[];
         
         return databases;
@@ -81,12 +125,14 @@ export class Turso {
 
     async getDatabase(name: string) {
         const databases = await this.listDatabases();
+        if (databases === TursoError.AUTHENTICATED_REQUIRED) return databases;
 
         return databases.find((database) => database.Name === name);
     }
 
     async listDatabaseInstances(name: string) {
         const res = await this.get(`databases/${name}/instances`);
+        if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
         const instances = (await res.json()).instances as DatabaseInstance[];
 
         return instances;
@@ -94,7 +140,39 @@ export class Turso {
 
     async getDatabaseInstance(dbName: string, instanceName: string) {
         const instances = await this.listDatabaseInstances(dbName);
+        if (instances === TursoError.AUTHENTICATED_REQUIRED) return instances;
 
         return instances.find((instance) => instance.name === instanceName);
+    }
+
+    async createDatabase({name, region = Region.lax, image = "latest"}: CreateDatabaseArgs) {
+        const res = await this.post(`databases`, {name, region, image});
+        if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
+        if (res.status === 422) return TursoError.DATABASE_LIMIT;
+
+        return (await res.json()) as {
+            database: Pick<Database, "Name" | "Hostname" | "IssuedCertLimit" | "IssuedCertCount" | "DbId">,
+            username: string,
+            password: string
+        };
+    }
+
+    async deleteDatabase(name: string) {
+        const res = await this.delete(`databases/${name}`);
+        if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
+
+        return (await res.json()) as {database: string};
+    }
+
+    async createInstance({dbName, instance_name, password, region, image}: CreateDatabaseInstanceArgs) {
+        const res = await this.post(`databases/${dbName}/instances`, {instance_name, password, region, image});
+        if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
+        if (res.status === 422) return TursoError.DATABASE_LIMIT;
+
+        return (await res.json()) as {
+            instance: DatabaseInstance,
+            password: string,
+            username: string
+        };
     }
 }

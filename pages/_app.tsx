@@ -3,7 +3,7 @@ import type { AppProps } from 'next/app'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Turso } from '@/turso';
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 declare global {
   var turso: Turso

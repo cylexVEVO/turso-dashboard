@@ -1,18 +1,20 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Inter } from 'next/font/google'
 import { useRouter } from 'next/router';
-import { ChevronRightIcon } from '@heroicons/react/24/solid';
+import { ChevronRightIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { useContext } from 'react';
+import { queryClient } from '@/pages/_app';
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
-    const router = useRouter();
-    const { isLoading, error, data } = useQuery({
-      queryKey: ["database", router.query.name],
-      queryFn: async () => {
-        if (router.query.name === undefined) return false;
-        return await globalThis.turso.getDatabase(router.query.name as string);
-      }
+  const router = useRouter();
+  const { isLoading, error, data } = useQuery({
+    queryKey: ["database", router.query.name],
+    queryFn: async () => {
+      if (router.query.name === undefined) return false;
+      return await globalThis.turso.getDatabase(router.query.name as string);
+    }
   });
 
   const {isLoading: instancesLoading, error: instancesError, data: instances} = useQuery({
@@ -21,6 +23,19 @@ export default function Home() {
         if (router.query.name === undefined || !data) return false;
         return await globalThis.turso.listDatabaseInstances(data.Name);
       }
+  });
+
+  const {mutate} = useMutation({
+    mutationFn: async (name: string) => {
+      return await globalThis.turso.deleteDatabase(name);
+    },
+    onError: (e) => {
+      window.alert(e);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      router.replace("/");
+    }
   });
 
   if (isLoading || instancesLoading) return (
@@ -36,11 +51,16 @@ export default function Home() {
 
   return (
     <main className={`container mx-auto py-8 ${inter.className}`}>
-      <div className={"text-3xl font-bold mb-4"}>
-        <a href={".."}>Databases</a> / {data.Name}
+      <div className={"flex items-center justify-between"}>
+        <div className={"text-3xl font-bold mb-4"}>
+          <a href={".."}>Databases</a> / {data.Name}
+        </div>
+        <button onClick={() => mutate(data.Name)}>
+          <TrashIcon className={"h-6 w-6 text-neutral-400 hover:text-red-600 active:text-red-700 transition ease-in-out duration-200"}/>
+        </button>
       </div>
       <div className={"text-xl font-medium mb-2"}>
-        {data.regions.length} instances
+        {data.regions?.length ?? 0} instances
       </div>
       <div className={"flex flex-col gap-4 mb-4"}>
         {instances.map((instance) => {
