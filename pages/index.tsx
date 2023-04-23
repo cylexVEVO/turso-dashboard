@@ -17,15 +17,17 @@ for (const enumKey in Region) {
 
 const CreateDatabaseModal = (props: {hide: () => void}) => {
   const {mutate, isLoading} = useMutation({
-    mutationFn: async (args: CreateDatabaseArgs) => {
+    mutationFn: async (args: CreateDatabaseArgs & {createInstance: boolean}) => {
       const database = await globalThis.turso.createDatabase(args);
       if (database === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
       if (database === TursoError.DATABASE_LIMIT) return window.alert("you've hit the db limit");
+      if (!args.createInstance) return {database};
       const instance = await globalThis.turso.createDatabaseInstance({dbName: database.database.Name, ...args});
       if (instance === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
       if (instance === TursoError.DATABASE_LIMIT) return window.alert("you've hit the db limit");
       return {
-        database, instance
+        database,
+        instance
       };
     },
     onError: (e) => {
@@ -44,6 +46,7 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
   const [name, setName] = useState("");
   const [region, setRegion] = useState("lax");
   const [version, setVersion] = useState("latest");
+  const [createInstance, setCreateInstance] = useState(true);
 
   const canCreate = name.length > 0 && !isLoading;
 
@@ -93,10 +96,16 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
               <option value={"canary"}>Canary</option>
             </select>
           </fieldset>
+          <fieldset className={"flex items-center gap-2"}>
+            <input type={"checkbox"} checked={createInstance} onChange={(e) => setCreateInstance(e.target.checked)}/>
+            <label htmlFor={"instance"} className={"text-sm opacity-75"}>
+              Create instance?
+            </label>
+          </fieldset>
         </div>
         <div className={"flex justify-end"}>
           <button
-            onClick={() => mutate({ name, region, image: version } as CreateDatabaseArgs)}
+            onClick={() => mutate({ name, region, image: version, createInstance } as CreateDatabaseArgs & {createInstance: boolean})}
             className={"px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none"}
             disabled={!canCreate}>
             {isLoading ? "Loading..." : "Create"}

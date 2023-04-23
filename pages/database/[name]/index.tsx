@@ -179,35 +179,37 @@ export default function Home() {
         </Dialog.Root>
       </div>
       <div className={"text-xl font-medium mb-2"}>
-        {data.regions?.length ?? 0} instances
+        {instances.length === 0 ? "No" : instances.length} instances
       </div>
-      <div className={"flex flex-col gap-4 mb-4"}>
-        {instances.map((instance) => {
-          return (
-            <a key={instance.name} href={`/database/${data.Name}/instance/${instance.name}`} className={"group transition ease-in-out duration-200 py-2 px-3 border border-neutral-300 hover:border-neutral-400 rounded-lg flex items-center justify-between"}>
-              <div>
-                <div className={"flex items-center gap-3"}>
-                  <div className={"text-xl font-medium"}>
-                    {instance.name}
+      {instances.length > 0 &&
+        <div className={"flex flex-col gap-4 mb-4"}>
+          {instances.map((instance) => {
+            return (
+              <a key={instance.name} href={`/database/${data.Name}/instance/${instance.name}`} className={"group transition ease-in-out duration-200 py-2 px-3 border border-neutral-300 hover:border-neutral-400 rounded-lg flex items-center justify-between"}>
+                <div>
+                  <div className={"flex items-center gap-3"}>
+                    <div className={"text-xl font-medium"}>
+                      {instance.name}
+                    </div>
+                    <div className={`text-sm text-white font-medium rounded-md py-0.5 px-2 ${instance.type === "primary" ? "bg-green-400" : "bg-blue-400"}`}>
+                      {instance.type}
+                    </div>
                   </div>
-                  <div className={`text-sm text-white font-medium rounded-md py-0.5 px-2 ${instance.type === "primary" ? "bg-green-400" : "bg-blue-400"}`}>
-                    {instance.type}
+                  <div className={"opacity-75"}>
+                    Region: {instance.region}
                   </div>
                 </div>
-                <div className={"opacity-75"}>
-                  Region: {instance.region}
-                </div>
-              </div>
-              <ChevronRightIcon className={"h-6 w-6 text-neutral-300 group-hover:text-neutral-400 transition ease-in-out duration-200"}/>
-            </a>
-          );
-        })}
-      </div>
+                <ChevronRightIcon className={"h-6 w-6 text-neutral-300 group-hover:text-neutral-400 transition ease-in-out duration-200"} />
+              </a>
+            );
+          })}
+        </div>
+      }
       <div className={"text-xl font-medium"}>
         Primary Region
       </div>
       <div className={"opacity-75 mb-2"}>
-        {data.primaryRegion}
+        {data.primaryRegion ?? "None"}
       </div>
       <div className={"text-xl font-medium"}>
         Hostname
