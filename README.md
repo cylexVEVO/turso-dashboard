@@ -4,8 +4,9 @@
 2. Start the application with `npm run dev`, and navigate to `localhost:3000` to start using it!
 
 # Roadmap
-- Individual instance creation and deletion
 - Improved deletion flows (confirmation, loading indicators)
+- A way to get connection URLs
+- Token creation and revokation
 
 # Additional
 This project is not created or endorsed by Turso.
