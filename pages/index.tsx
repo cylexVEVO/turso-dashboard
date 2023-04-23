@@ -108,7 +108,7 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
             onClick={() => mutate({ name, region, image: version, createInstance } as CreateDatabaseArgs & {createInstance: boolean})}
             className={"px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none"}
             disabled={!canCreate}>
-            {isLoading ? "Loading..." : "Create"}
+            {isLoading ? "Creating..." : "Create"}
           </button>
         </div>
         <Dialog.Close asChild>

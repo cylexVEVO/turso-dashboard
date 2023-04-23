@@ -4,8 +4,6 @@
 2. Start the application with `npm run dev`, and navigate to `localhost:3000` to start using it!
 
 # Roadmap
-- Improved deletion flows (confirmation, loading indicators)
-- A way to get connection URLs
 - Token creation and revokation
 
 # Additional

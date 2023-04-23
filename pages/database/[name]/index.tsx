@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { Inter } from 'next/font/google'
 import { useRouter } from 'next/router';
 import { ChevronRightIcon, EllipsisHorizontalCircleIcon, XMarkIcon } from '@heroicons/react/24/solid';
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { queryClient } from '@/pages/_app';
 import { CreateDatabaseInstanceArgs, Region, TursoError } from '@/turso';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -80,7 +80,50 @@ const CreateInstanceModal = (props: {hide: () => void, dbName: string}) => {
             onClick={() => mutate({ dbName: props.dbName, region, image: version } as CreateDatabaseInstanceArgs)}
             className={"px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none"}
             disabled={isLoading}>
-            {isLoading ? "Loading..." : "Create"}
+            {isLoading ? "Creating..." : "Create"}
+          </button>
+        </div>
+        <Dialog.Close asChild>
+          <XMarkIcon className={"h-6 w-6 text-neutral-300 hover:text-neutral-400 transition ease-in-out duration-200 absolute top-4 right-4"}/>
+        </Dialog.Close>
+      </Dialog.Content>
+    </Dialog.Portal>
+  );
+};
+
+const DestroyDatabaseModal = (props: {dbName: string}) => {
+  const router = useRouter();
+  const {mutate, isLoading} = useMutation({
+    mutationFn: async (name: string) => {
+      return await globalThis.turso.deleteDatabase(name);
+    },
+    onError: (e) => {
+      window.alert(e);
+    },
+    onSuccess: (r) => {
+      if (r === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
+      if (r === TursoError.NOT_FOUND) return window.alert("database not found");
+      queryClient.invalidateQueries();
+      router.replace("/");
+    }
+  });
+
+  return (
+    <Dialog.Portal>
+      <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"}/>
+      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+        <Dialog.Title className={"text-3xl font-bold mb-4"}>
+          Destroy Database
+        </Dialog.Title>
+        <Dialog.Description>
+          Are you sure you want to destroy the database? This will destroy all instances and delete all data.
+        </Dialog.Description>
+        <div className={"flex justify-end mt-4"}>
+          <button
+            onClick={() => mutate(props.dbName)}
+            className={"px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-500 active:bg-red-700 transition ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none"}
+            disabled={isLoading}>
+            {isLoading ? "Destroying..." : "Destroy"}
           </button>
         </div>
         <Dialog.Close asChild>
@@ -113,23 +156,9 @@ export default function Home() {
       }
   });
 
-  const {mutate} = useMutation({
-    mutationFn: async (name: string) => {
-      return await globalThis.turso.deleteDatabase(name);
-    },
-    onError: (e) => {
-      window.alert(e);
-    },
-    onSuccess: (r) => {
-      if (r === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
-      if (r === TursoError.NOT_FOUND) return window.alert("database not found");
-      queryClient.invalidateQueries();
-      router.replace("/");
-    }
-  });
-
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [destroyDialogOpen, setDestroyDialogOpen] = useState(false);
 
   if (isLoading || instancesLoading) return (
     <main className={`container mx-auto py-8 ${inter.className}`}>
@@ -148,34 +177,41 @@ export default function Home() {
         <div className={"text-3xl font-bold"}>
           <a href={".."}>Databases</a> / {data.Name}
         </div>
+        <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
+          <DropdownMenu.Trigger asChild>
+            <EllipsisHorizontalCircleIcon className={"h-8 w-8 text-blue-600 hover:text-blue-500 active:text-blue-700 transition ease-in-out duration-200"} />
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content
+              className={"data-[state=open]:animate-fadeIn p-2 rounded-lg bg-white shadow-lg border border-neutral-200 flex flex-col"}
+              sideOffset={4}
+              side={"bottom"}
+              align={"end"}>
+              <DropdownMenu.Item asChild>
+                <button onClick={() => {
+                  setCreateDialogOpen(true);
+                  setDropdownOpen(false);
+                }} className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-neutral-200 outline-none text-left"}>
+                  New instance
+                </button>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
+                <button
+                  onClick={() => {
+                    setDestroyDialogOpen(true);
+                    setDropdownOpen(false);
+                  }}
+                  className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-red-600 hover:text-white text-red-600 outline-none text-left"}>
+                  Destroy database
+                </button>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu.Root>
+        <Dialog.Root open={destroyDialogOpen} onOpenChange={setDestroyDialogOpen}>
+          <DestroyDatabaseModal dbName={data.Name}/>
+        </Dialog.Root>
         <Dialog.Root open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
-            <DropdownMenu.Trigger asChild>
-              <EllipsisHorizontalCircleIcon className={"h-8 w-8 text-blue-600 hover:text-blue-500 active:text-blue-700 transition ease-in-out duration-200"} />
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Portal>
-              <DropdownMenu.Content
-                className={"data-[state=open]:animate-fadeIn p-2 rounded-lg bg-white shadow-lg border border-neutral-200 flex flex-col"}
-                sideOffset={4}
-                side={"bottom"}
-                align={"end"}>
-                <DropdownMenu.Item asChild>
-                  <Dialog.Trigger asChild>
-                    <button onClick={() => setDropdownOpen(false)} className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-neutral-200 outline-none text-left"}>
-                      New instance
-                    </button>
-                  </Dialog.Trigger>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item asChild>
-                  <button
-                    onClick={() => mutate(data.Name)}
-                    className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-red-600 hover:text-white text-red-600 outline-none text-left"}>
-                    Destroy database
-                  </button>
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-          </DropdownMenu.Root>
           <CreateInstanceModal hide={() => setCreateDialogOpen(false)} dbName={data.Name} />
         </Dialog.Root>
       </div>
