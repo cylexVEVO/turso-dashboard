@@ -7,6 +7,7 @@ import { queryClient } from '@/pages/_app';
 import { CreateDatabaseInstanceArgs, Region, TursoError } from '@/turso';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Dialog from "@radix-ui/react-dialog";
+import { ConnectionUrl } from '@/components/ConnectionUrl';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -217,6 +218,7 @@ export default function Home() {
       <div className={"opacity-75 mb-2"}>
         {data.Hostname}
       </div>
+      <ConnectionUrl hostname={data.Hostname}/>
     </main>
   )
-}
+};

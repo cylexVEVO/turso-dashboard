@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { TrashIcon } from '@heroicons/react/24/solid';
 import { TursoError } from '@/turso';
 import { queryClient } from '@/pages/_app';
+import { ConnectionUrl } from '@/components/ConnectionUrl';
 
 // TODO: add instance deletions
 
@@ -86,6 +87,7 @@ export default function Home() {
       <div className={"opacity-75 mb-2"}>
         {instance.hostname}
       </div>
+      <ConnectionUrl hostname={instance.hostname}/>
     </main>
   )
-}
+};
