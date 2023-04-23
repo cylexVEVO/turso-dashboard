@@ -54,7 +54,9 @@ export type DatabaseInstance = {
 
 export enum TursoError {
     AUTHENTICATED_REQUIRED,
-    DATABASE_LIMIT
+    DATABASE_LIMIT,
+    BAD_REQUEST,
+    NOT_FOUND
 }
 
 export type CreateDatabaseArgs = {
@@ -65,8 +67,8 @@ export type CreateDatabaseArgs = {
 
 export type CreateDatabaseInstanceArgs = {
     dbName: string,
-    instance_name: string,
-    password: string,
+    instance_name?: string,
+    password?: string,
     region: Region,
     image: "latest" | "canary"
 };
@@ -162,11 +164,12 @@ export class Turso {
     async deleteDatabase(name: string) {
         const res = await this.delete(`databases/${name}`);
         if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
+        if (res.status === 404) return TursoError.NOT_FOUND;
 
         return (await res.json()) as {database: string};
     }
 
-    async createInstance({dbName, instance_name, password, region, image}: CreateDatabaseInstanceArgs) {
+    async createDatabaseInstance({dbName, instance_name = "", password = "", region, image}: CreateDatabaseInstanceArgs) {
         const res = await this.post(`databases/${dbName}/instances`, {instance_name, password, region, image});
         if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
         if (res.status === 422) return TursoError.DATABASE_LIMIT;
@@ -175,6 +178,17 @@ export class Turso {
             instance: DatabaseInstance,
             password: string,
             username: string
+        };
+    }
+
+    async deleteDatabaseInstance(database: string, instance: string) {
+        const res = await this.delete(`databases/${database}/instances/${instance}`);
+        if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
+        if (res.status === 400) return TursoError.BAD_REQUEST;
+        if (res.status === 404) return TursoError.NOT_FOUND;
+
+        return (await res.json()) as {
+            instance: string
         };
     }
 }

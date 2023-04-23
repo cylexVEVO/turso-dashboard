@@ -21,7 +21,7 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
       const database = await globalThis.turso.createDatabase(args);
       if (database === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
       if (database === TursoError.DATABASE_LIMIT) return window.alert("you've hit the db limit");
-      const instance = await globalThis.turso.createInstance({dbName: database.database.Name, instance_name: "", password: database.password, ...args});
+      const instance = await globalThis.turso.createDatabaseInstance({dbName: database.database.Name, ...args});
       if (instance === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
       if (instance === TursoError.DATABASE_LIMIT) return window.alert("you've hit the db limit");
       return {
@@ -33,7 +33,6 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
     },
     onSuccess: (database) => {
       if (!database) return;
-      localStorage.setItem(name, JSON.stringify({username: database.database.username, password: database.database.password}));
       queryClient.invalidateQueries();
       setName("");
       setRegion("lax");
@@ -109,7 +108,7 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
       </Dialog.Content>
     </Dialog.Portal>
   );
-}
+};
 
 export default function Home() {
   const {isLoading, error, data} = useQuery({
@@ -127,8 +126,8 @@ export default function Home() {
 
   return (
     <main className={`container mx-auto py-8 ${inter.className}`}>
-      <div className={"flex items-center justify-between"}>
-        <div className={"text-3xl font-bold mb-4"}>
+      <div className={"flex items-center justify-between mb-4"}>
+        <div className={"text-3xl font-bold"}>
           Databases
         </div>
         <Dialog.Root open={createDialogOpen} onOpenChange={setCreateDialogOpen}>

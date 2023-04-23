@@ -1,8 +1,9 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Inter } from 'next/font/google'
 import { useRouter } from 'next/router';
-import { ChevronRightIcon } from '@heroicons/react/24/solid';
+import { TrashIcon } from '@heroicons/react/24/solid';
 import { TursoError } from '@/turso';
+import { queryClient } from '@/pages/_app';
 
 // TODO: add instance deletions
 
@@ -30,6 +31,22 @@ export default function Home() {
     }
   });
 
+  const {mutate} = useMutation({
+    mutationFn: async ({database, instance}: {database: string, instance: string}) => {
+      return await globalThis.turso.deleteDatabaseInstance(database, instance);
+    },
+    onError: (e) => {
+      window.alert(e);
+    },
+    onSuccess: (r) => {
+      if (r === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
+      if (r === TursoError.BAD_REQUEST) return window.alert("you cannot delete the primary instance. please delete the entire database instead.");
+      if (r === TursoError.NOT_FOUND) return window.alert("instance not found");
+      queryClient.invalidateQueries();
+      router.replace(`/database/${router.query.name}`);
+    }
+  });
+
   if (isLoading || instanceLoading) return (
     <main className={`container mx-auto py-8 ${inter.className}`}>
       <div className={"text-3xl font-bold mb-4"}>
@@ -43,8 +60,13 @@ export default function Home() {
   
   return (
     <main className={`container mx-auto py-8 ${inter.className}`}>
-      <div className={"text-3xl font-bold mb-4"}>
-        <a href={"../../.."}>Databases</a> / <a href={".."}>{data.Name}</a> / {instance.name}
+      <div className={"flex items-center justify-between mb-4"}>
+        <div className={"text-3xl font-bold"}>
+          <a href={"../../.."}>Databases</a> / <a href={".."}>{data.Name}</a> / {instance.name}
+        </div>
+        <button onClick={() => mutate({database: data.Name, instance: instance.name})}>
+          <TrashIcon className={"h-6 w-6 text-neutral-400 hover:text-red-600 active:text-red-700 transition ease-in-out duration-200"}/>
+        </button>
       </div>
       <div className={"text-xl font-medium"}>
         Type
