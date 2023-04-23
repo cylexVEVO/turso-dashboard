@@ -152,7 +152,7 @@ export class Turso {
     async createDatabase({name, region = Region.lax, image = "latest"}: CreateDatabaseArgs) {
         const res = await this.post(`databases`, {name, region, image});
         if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
-        if (res.status === 422) return TursoError.DATABASE_LIMIT;
+        if (res.status === 503) return TursoError.DATABASE_LIMIT;
 
         return (await res.json()) as {
             database: Pick<Database, "Name" | "Hostname" | "IssuedCertLimit" | "IssuedCertCount" | "DbId">,
@@ -172,7 +172,7 @@ export class Turso {
     async createDatabaseInstance({dbName, instance_name = "", password = "", region, image}: CreateDatabaseInstanceArgs) {
         const res = await this.post(`databases/${dbName}/instances`, {instance_name, password, region, image});
         if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
-        if (res.status === 422) return TursoError.DATABASE_LIMIT;
+        if (res.status === 503) return TursoError.DATABASE_LIMIT;
 
         return (await res.json()) as {
             instance: DatabaseInstance,
