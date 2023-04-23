@@ -93,7 +93,7 @@ export class Turso {
         return res;
     }
 
-    private async post(endpoint: string, body: Record<string, any>) {
+    private async post(endpoint: string, body?: Record<string, any>) {
         const res = await fetch(`${this.url}/${endpoint}`, {
             credentials: "include",
             headers: {
@@ -101,7 +101,7 @@ export class Turso {
                 "authorization": `Bearer ${this.token}`
             },
             method: "POST",
-            body: JSON.stringify(body)
+            body: body !== null ? JSON.stringify(body) : ""
         });
 
         return res;
@@ -190,5 +190,21 @@ export class Turso {
         return (await res.json()) as {
             instance: string
         };
+    }
+
+    async createToken(database: string, expiration: "default" | "none", readOnly: boolean) {
+        const res = await this.post(`databases/${database}/auth/tokens?expiration=${expiration}${readOnly ? "&authorization=read-only" : ""}`);
+        if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
+        if (res.status === 404) return TursoError.NOT_FOUND;
+
+        return (await res.json()) as {
+            jwt: string
+        };
+    }
+
+    async rotateTokens(database: string) {
+        const res = await this.post(`databases/${database}/auth/rotate`);
+        if (res.status === 401) return TursoError.AUTHENTICATED_REQUIRED;
+        if (res.status === 404) return TursoError.NOT_FOUND;
     }
 }

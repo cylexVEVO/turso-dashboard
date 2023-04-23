@@ -97,7 +97,7 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
             </select>
           </fieldset>
           <fieldset className={"flex items-center gap-2"}>
-            <input type={"checkbox"} checked={createInstance} onChange={(e) => setCreateInstance(e.target.checked)}/>
+            <input id={"instance"} type={"checkbox"} checked={createInstance} onChange={(e) => setCreateInstance(e.target.checked)}/>
             <label htmlFor={"instance"} className={"text-sm opacity-75"}>
               Create instance?
             </label>

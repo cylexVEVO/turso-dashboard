@@ -134,6 +134,150 @@ const DestroyDatabaseModal = (props: {dbName: string}) => {
   );
 };
 
+const CreateTokenModal = (props: {hide: () => void, dbName: string}) => {
+  const {mutate, isLoading} = useMutation({
+    mutationFn: async ({database, expiration, readOnly}: {database: string, expiration: string, readOnly: boolean}) => {
+      const token = await globalThis.turso.createToken(database, expiration as "default" | "none", readOnly);
+      return token;
+    },
+    onError: (e) => {
+      window.alert(e);
+    },
+    onSuccess: (token) => {
+      if (token === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
+      if (token === TursoError.NOT_FOUND) return window.alert("database not found");
+      setToken(token.jwt);
+    }
+  });
+
+  const [expires, setExpires] = useState(true);
+  const [readOnly, setReadOnly] = useState(true);
+  const [token, setToken] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const copy = () => {
+    navigator.clipboard.writeText(token);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 4000);
+  };
+
+  if (token) {
+    return (
+      <Dialog.Portal>
+        <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"} />
+        <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+          <Dialog.Title className={"text-3xl font-bold mb-4"}>
+            Create Token
+          </Dialog.Title>
+          <Dialog.Description>
+            Your token is:
+            <div className={"flex mt-2"}>
+              <div className={"border-l border-y border-neutral-300 py-2 px-3 font-mono rounded-l-lg overflow-auto whitespace-nowrap"}>
+                {token}
+              </div>
+              <button
+                className={`border border-neutral-300 py-2 px-4 rounded-r-lg ${copied ? "text-green-700" : ""}`}
+                onClick={copy}>
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+          </Dialog.Description>
+          <div className={"flex justify-end mt-4"}>
+            <button onClick={() => {
+              setExpires(true);
+              setReadOnly(true);
+              setToken("");
+              props.hide();
+            }} className={"px-4 py-2 rounded-lg text-white bg-neutral-500 hover:bg-neutral-400 active:bg-neutral-600 transition ease-in-out duration-200"}>
+              Close
+            </button>
+          </div>
+          <Dialog.Close asChild>
+            <XMarkIcon className={"h-6 w-6 text-neutral-300 hover:text-neutral-400 transition ease-in-out duration-200 absolute top-4 right-4"} />
+          </Dialog.Close>
+        </Dialog.Content>
+      </Dialog.Portal>
+    );
+  }
+
+  return (
+    <Dialog.Portal>
+      <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"} />
+      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+        <Dialog.Title className={"text-3xl font-bold mb-4"}>
+          Create Token
+        </Dialog.Title>
+        <div className={"flex flex-col gap-2 mb-4"}>
+          <fieldset className={"flex items-center gap-2"}>
+            <input id={"expires"} type={"checkbox"} checked={expires} onChange={(e) => setExpires(e.target.checked)} />
+            <label htmlFor={"expires"} className={"text-sm opacity-75"}>
+              Expires?
+            </label>
+          </fieldset>
+          <fieldset className={"flex items-center gap-2"}>
+            <input id={"readonly"} type={"checkbox"} checked={readOnly} onChange={(e) => setReadOnly(e.target.checked)} />
+            <label htmlFor={"readonly"} className={"text-sm opacity-75"}>
+              Read only?
+            </label>
+          </fieldset>
+        </div>
+        <div className={"flex justify-end"}>
+          <button
+            onClick={() => mutate({database: props.dbName, expiration: expires ? "default" : "none", readOnly})}
+            className={"px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-500 active:bg-blue-700 transition ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none"}
+            disabled={isLoading}>
+            {isLoading ? "Creating..." : "Create"}
+          </button>
+        </div>
+        <Dialog.Close asChild>
+          <XMarkIcon className={"h-6 w-6 text-neutral-300 hover:text-neutral-400 transition ease-in-out duration-200 absolute top-4 right-4"} />
+        </Dialog.Close>
+      </Dialog.Content>
+    </Dialog.Portal>
+  );
+};
+
+const RotateTokensModal = (props: {hide: () => void, dbName: string}) => {
+  const {mutate, isLoading} = useMutation({
+    mutationFn: async (name: string) => {
+      return await globalThis.turso.rotateTokens(name);
+    },
+    onError: (e) => {
+      window.alert(e);
+    },
+    onSuccess: (r) => {
+      if (r === TursoError.AUTHENTICATED_REQUIRED) return window.alert("authorization required");
+      if (r === TursoError.NOT_FOUND) return window.alert("database not found");
+      props.hide();
+    }
+  });
+
+  return (
+    <Dialog.Portal>
+      <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"}/>
+      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+        <Dialog.Title className={"text-3xl font-bold mb-4"}>
+          Rotate Tokens
+        </Dialog.Title>
+        <Dialog.Description>
+          Are you sure you want to rotate the tokens? All instances will be restarted, and all active connections will be dropped.
+        </Dialog.Description>
+        <div className={"flex justify-end mt-4"}>
+          <button
+            onClick={() => mutate(props.dbName)}
+            className={"px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-500 active:bg-red-700 transition ease-in-out duration-200 disabled:opacity-50 disabled:pointer-events-none"}
+            disabled={isLoading}>
+            {isLoading ? "Rotating..." : "Rotate"}
+          </button>
+        </div>
+        <Dialog.Close asChild>
+          <XMarkIcon className={"h-6 w-6 text-neutral-300 hover:text-neutral-400 transition ease-in-out duration-200 absolute top-4 right-4"}/>
+        </Dialog.Close>
+      </Dialog.Content>
+    </Dialog.Portal>
+  );
+};
+
 export default function Home() {
   const router = useRouter();
   const { isLoading, error, data } = useQuery({
@@ -159,6 +303,8 @@ export default function Home() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [destroyDialogOpen, setDestroyDialogOpen] = useState(false);
+  const [createTokenDialogOpen, setCreateTokenDialogOpen] = useState(false);
+  const [rotateTokensDialogOpen, setRotateTokensDialogOpen] = useState(false);
 
   if (isLoading || instancesLoading) return (
     <main className={`container mx-auto py-8 ${inter.className}`}>
@@ -188,11 +334,31 @@ export default function Home() {
               side={"bottom"}
               align={"end"}>
               <DropdownMenu.Item asChild>
+                <button
+                  onClick={() => {
+                    setCreateTokenDialogOpen(true);
+                    setDropdownOpen(false);
+                  }}
+                  className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-neutral-200 outline-none text-left"}>
+                  Create token
+                </button>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
                 <button onClick={() => {
                   setCreateDialogOpen(true);
                   setDropdownOpen(false);
                 }} className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-neutral-200 outline-none text-left"}>
                   New instance
+                </button>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
+                <button
+                  onClick={() => {
+                    setRotateTokensDialogOpen(true);
+                    setDropdownOpen(false);
+                  }}
+                  className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-red-600 hover:text-white text-red-600 outline-none text-left"}>
+                  Rotate tokens
                 </button>
               </DropdownMenu.Item>
               <DropdownMenu.Item asChild>
@@ -208,6 +374,12 @@ export default function Home() {
             </DropdownMenu.Content>
           </DropdownMenu.Portal>
         </DropdownMenu.Root>
+        <Dialog.Root open={rotateTokensDialogOpen} onOpenChange={setRotateTokensDialogOpen}>
+          <RotateTokensModal hide={() => setRotateTokensDialogOpen(false)} dbName={data.Name}/>
+        </Dialog.Root>
+        <Dialog.Root open={createTokenDialogOpen} onOpenChange={setCreateTokenDialogOpen}>
+          <CreateTokenModal hide={() => setCreateTokenDialogOpen(false)} dbName={data.Name}/>
+        </Dialog.Root>
         <Dialog.Root open={destroyDialogOpen} onOpenChange={setDestroyDialogOpen}>
           <DestroyDatabaseModal dbName={data.Name}/>
         </Dialog.Root>
