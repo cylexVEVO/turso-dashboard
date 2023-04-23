@@ -44,7 +44,7 @@ const CreateInstanceModal = (props: {hide: () => void, dbName: string}) => {
       <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"}/>
       <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
         <Dialog.Title className={"text-3xl font-bold mb-4"}>
-          New Instance
+          Create Instance
         </Dialog.Title>
         <div className={"flex flex-col gap-2 mb-4"}>
           <fieldset className={"flex flex-col gap-1"}>
@@ -348,7 +348,7 @@ export default function Home() {
                   setCreateDialogOpen(true);
                   setDropdownOpen(false);
                 }} className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-neutral-200 outline-none text-left"}>
-                  New instance
+                  Create instance
                 </button>
               </DropdownMenu.Item>
               <DropdownMenu.Item asChild>
