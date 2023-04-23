@@ -4,7 +4,12 @@
 2. Start the application with `npm run dev`, and navigate to `localhost:3000` to start using it!
 
 # Roadmap
-- Token creation and revokation
+- Statistics from `turso db inspect`
+- Improved region selector
+- Database shell
+- Show database version
+- Update database version
+- Dark theme
 
 # Additional
 This project is not created or endorsed by Turso.
