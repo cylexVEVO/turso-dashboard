@@ -9,7 +9,6 @@
 - Database shell
 - Show database version
 - Update database version
-- Dark theme
 
 # Additional
 This project is not created or endorsed by Turso.

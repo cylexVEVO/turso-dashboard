@@ -7,6 +7,7 @@ import { queryClient } from '@/pages/_app';
 import { ConnectionUrl } from '@/components/ConnectionUrl';
 import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from 'react';
+import { Spinner } from '@/components/Spinner';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -31,7 +32,7 @@ const DestroyInstanceModal = (props: {database: string, instance: string}) => {
   return (
     <Dialog.Portal>
       <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"}/>
-      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white dark:bg-neutral-900 shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
         <Dialog.Title className={"text-3xl font-bold mb-4"}>
           Destroy Instance
         </Dialog.Title>
@@ -79,8 +80,9 @@ export default function Home() {
   if (isLoading || instanceLoading) return (
     <main className={`container mx-auto py-8 ${inter.className}`}>
       <div className={"text-3xl font-bold mb-4"}>
-        <a href={".."}>Databases</a> / <img src="/spinner.svg" width={32} height={32} className={"animate-spin mt-4"}/>
+        <a href={".."}>Databases</a> /
       </div>
+      <Spinner />
     </main>
   );
 

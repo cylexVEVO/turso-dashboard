@@ -5,6 +5,7 @@ import { type CreateDatabaseArgs, TursoError, Region } from '@/turso';
 import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from 'react';
 import { queryClient } from './_app';
+import { Spinner } from '@/components/Spinner';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -53,7 +54,7 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
   return (
     <Dialog.Portal>
       <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"}/>
-      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white dark:bg-neutral-900 shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
         <Dialog.Title className={"text-3xl font-bold mb-4"}>
           Create Database
         </Dialog.Title>
@@ -67,7 +68,7 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
               placeholder={"Database Name"}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className={"transition ease-in-out duration-200 rounded-lg border py-2 px-3 border-neutral-300 focus:border-neutral-400"} />
+              className={"transition ease-in-out duration-200 rounded-lg border py-2 px-3 border-neutral-300 focus:border-neutral-400 dark:border-neutral-700 dark:focus:border-neutral-600 bg-transparent"} />
           </fieldset>
           <fieldset className={"flex flex-col gap-1"}>
             <label htmlFor={"region"} className={"text-sm opacity-75"}>
@@ -77,7 +78,7 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
               id={"region"}
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              className={"transition ease-in-out duration-200 rounded-lg border py-2 px-3 border-neutral-300 focus:border-neutral-400 bg-transparent"}>
+              className={"transition ease-in-out duration-200 rounded-lg border py-2 px-3 border-neutral-300 focus:border-neutral-400 dark:border-neutral-700 dark:focus:border-neutral-600 bg-transparent"}>
               {regions.map((region) => (
                 <option value={region} key={region}>{region}</option>
               ))}
@@ -91,7 +92,7 @@ const CreateDatabaseModal = (props: {hide: () => void}) => {
               id={"version"}
               value={version}
               onChange={(e) => setVersion(e.target.value)}
-              className={"transition ease-in-out duration-200 rounded-lg border py-2 px-3 border-neutral-300 focus:border-neutral-400 bg-transparent"}>
+              className={"transition ease-in-out duration-200 rounded-lg border py-2 px-3 border-neutral-300 focus:border-neutral-400 bg-transparent dark:border-neutral-700 dark:focus:border-neutral-600"}>
               <option value={"latest"}>Latest</option>
               <option value={"canary"}>Canary</option>
             </select>
@@ -141,18 +142,18 @@ export default function Home() {
         </div>
         <Dialog.Root open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <Dialog.Trigger asChild>
-            <PlusCircleIcon className={"h-8 w-8 text-blue-600 hover:text-blue-500 active:text-blue-700 transition ease-in-out duration-200"} />
+            <PlusCircleIcon className={"h-8 w-8 text-blue-600 hover:text-blue-500 active:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 dark:active:text-blue-600 transition ease-in-out duration-200"} />
           </Dialog.Trigger>
           <CreateDatabaseModal hide={() => setCreateDialogOpen(false)}/>
         </Dialog.Root>
       </div>
       <div className={"flex flex-col gap-4"}>
         {isLoading &&
-          <img src="/spinner.svg" width={32} height={32} className={"animate-spin"}/>
+          <Spinner />
         }
         {!isLoading && typeof data === "object" && data.map((database) => {
           return (
-            <a key={database.Name} href={`/database/${database.Name}`} className={"group transition ease-in-out duration-200 py-2 px-3 border border-neutral-300 hover:border-neutral-400 rounded-lg flex items-center justify-between"}>
+            <a key={database.Name} href={`/database/${database.Name}`} className={"group transition ease-in-out duration-200 py-2 px-3 border border-neutral-300 hover:border-neutral-400 dark:border-neutral-700 dark:hover:border-neutral-600 rounded-lg flex items-center justify-between"}>
               <div>
                 <div className={"text-xl font-medium"}>
                   {database.Name}
@@ -161,7 +162,7 @@ export default function Home() {
                   {database.regions?.length ?? 0} instances
                 </div>
               </div>
-              <ChevronRightIcon className={"h-6 w-6 text-neutral-300 group-hover:text-neutral-400 transition ease-in-out duration-200"}/>
+              <ChevronRightIcon className={"h-6 w-6 text-neutral-300 group-hover:text-neutral-400 dark:text-neutral-700 dark:group-hover:text-neutral-600 transition ease-in-out duration-200"}/>
             </a>
           );
         })}

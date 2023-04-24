@@ -8,6 +8,7 @@ import { CreateDatabaseInstanceArgs, Region, TursoError } from '@/turso';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Dialog from "@radix-ui/react-dialog";
 import { ConnectionUrl } from '@/components/ConnectionUrl';
+import { Spinner } from '@/components/Spinner';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -42,7 +43,7 @@ const CreateInstanceModal = (props: {hide: () => void, dbName: string}) => {
   return (
     <Dialog.Portal>
       <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"}/>
-      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white dark:bg-neutral-900 shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
         <Dialog.Title className={"text-3xl font-bold mb-4"}>
           Create Instance
         </Dialog.Title>
@@ -55,7 +56,7 @@ const CreateInstanceModal = (props: {hide: () => void, dbName: string}) => {
               id={"region"}
               value={region}
               onChange={(e) => setRegion(e.target.value)}
-              className={"transition ease-in-out duration-200 rounded-lg border py-2 px-3 border-neutral-300 focus:border-neutral-400 bg-transparent"}>
+              className={"transition ease-in-out duration-200 rounded-lg border py-2 px-3 border-neutral-300 focus:border-neutral-400 dark:border-neutral-700 dark:focus:border-neutral-600 bg-transparent"}>
               {regions.map((region) => (
                 <option value={region} key={region}>{region}</option>
               ))}
@@ -69,7 +70,7 @@ const CreateInstanceModal = (props: {hide: () => void, dbName: string}) => {
               id={"version"}
               value={version}
               onChange={(e) => setVersion(e.target.value)}
-              className={"transition ease-in-out duration-200 rounded-lg border py-2 px-3 border-neutral-300 focus:border-neutral-400 bg-transparent"}>
+              className={"transition ease-in-out duration-200 rounded-lg border py-2 px-3 border-neutral-300 focus:border-neutral-400 dark:border-neutral-700 dark:focus:border-neutral-600 bg-transparent"}>
               <option value={"latest"}>Latest</option>
               <option value={"canary"}>Canary</option>
             </select>
@@ -111,7 +112,7 @@ const DestroyDatabaseModal = (props: {dbName: string}) => {
   return (
     <Dialog.Portal>
       <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"}/>
-      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white dark:bg-neutral-900 shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
         <Dialog.Title className={"text-3xl font-bold mb-4"}>
           Destroy Database
         </Dialog.Title>
@@ -165,18 +166,18 @@ const CreateTokenModal = (props: {hide: () => void, dbName: string}) => {
     return (
       <Dialog.Portal>
         <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"} />
-        <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+        <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white dark:bg-neutral-900 shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
           <Dialog.Title className={"text-3xl font-bold mb-4"}>
             Create Token
           </Dialog.Title>
           <Dialog.Description>
             Your token is:
             <div className={"flex mt-2"}>
-              <div className={"border-l border-y border-neutral-300 py-2 px-3 font-mono rounded-l-lg overflow-auto whitespace-nowrap"}>
+              <div className={"border-l border-y border-neutral-300 dark:border-neutral-700 py-2 px-3 font-mono rounded-l-lg overflow-auto whitespace-nowrap"}>
                 {token}
               </div>
               <button
-                className={`border border-neutral-300 py-2 px-4 rounded-r-lg ${copied ? "text-green-700" : ""}`}
+                className={`border border-neutral-300 dark:border-neutral-700 py-2 px-4 rounded-r-lg ${copied ? "text-green-700 dark:text-green-500" : ""}`}
                 onClick={copy}>
                 {copied ? "Copied!" : "Copy"}
               </button>
@@ -188,7 +189,7 @@ const CreateTokenModal = (props: {hide: () => void, dbName: string}) => {
               setReadOnly(true);
               setToken("");
               props.hide();
-            }} className={"px-4 py-2 rounded-lg text-white bg-neutral-500 hover:bg-neutral-400 active:bg-neutral-600 transition ease-in-out duration-200"}>
+            }} className={"px-4 py-2 rounded-lg text-white bg-neutral-500 hover:bg-neutral-400 active:bg-neutral-600 dark:bg-neutral-600 dark:hover:bg-neutral-500 dark:active:bg-neutral-700 transition ease-in-out duration-200"}>
               Close
             </button>
           </div>
@@ -203,7 +204,7 @@ const CreateTokenModal = (props: {hide: () => void, dbName: string}) => {
   return (
     <Dialog.Portal>
       <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"} />
-      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white dark:bg-neutral-900 shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
         <Dialog.Title className={"text-3xl font-bold mb-4"}>
           Create Token
         </Dialog.Title>
@@ -255,7 +256,7 @@ const RotateTokensModal = (props: {hide: () => void, dbName: string}) => {
   return (
     <Dialog.Portal>
       <Dialog.Overlay className={"bg-black/75 fixed inset-0 data-[state=open]:animate-fadeIn"}/>
-      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
+      <Dialog.Content className={"data-[state=open]:animate-fadeIn fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 bg-white dark:bg-neutral-900 shadow-md max-h-[85vh] w-[90vw] max-w-2xl rounded-lg"}>
         <Dialog.Title className={"text-3xl font-bold mb-4"}>
           Rotate Tokens
         </Dialog.Title>
@@ -309,8 +310,9 @@ export default function Home() {
   if (isLoading || instancesLoading) return (
     <main className={`container mx-auto py-8 ${inter.className}`}>
       <div className={"text-3xl font-bold mb-4"}>
-        <a href={".."}>Databases</a> / <img src="/spinner.svg" width={32} height={32} className={"animate-spin mt-4"}/>
+        <a href={".."}>Databases</a> /
       </div>
+      <Spinner />
     </main>
   );
   
@@ -325,11 +327,11 @@ export default function Home() {
         </div>
         <DropdownMenu.Root open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenu.Trigger asChild>
-            <EllipsisHorizontalCircleIcon className={"h-8 w-8 text-blue-600 hover:text-blue-500 active:text-blue-700 transition ease-in-out duration-200"} />
+            <EllipsisHorizontalCircleIcon className={"h-8 w-8 text-blue-600 hover:text-blue-500 active:text-blue-700 dark:text-blue-500 dark:hover:text-blue-400 dark:active:text-blue-600 transition ease-in-out duration-200"} />
           </DropdownMenu.Trigger>
           <DropdownMenu.Portal>
             <DropdownMenu.Content
-              className={"data-[state=open]:animate-fadeIn p-2 rounded-lg bg-white shadow-lg border border-neutral-200 flex flex-col"}
+              className={"data-[state=open]:animate-fadeIn p-2 rounded-lg bg-white shadow-lg border border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800 flex flex-col"}
               sideOffset={4}
               side={"bottom"}
               align={"end"}>
@@ -339,7 +341,7 @@ export default function Home() {
                     setCreateTokenDialogOpen(true);
                     setDropdownOpen(false);
                   }}
-                  className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-neutral-200 outline-none text-left"}>
+                  className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-neutral-200 dark:hover:bg-neutral-800 outline-none text-left"}>
                   Create token
                 </button>
               </DropdownMenu.Item>
@@ -347,7 +349,7 @@ export default function Home() {
                 <button onClick={() => {
                   setCreateDialogOpen(true);
                   setDropdownOpen(false);
-                }} className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-neutral-200 outline-none text-left"}>
+                }} className={"py-2 px-4 rounded transition ease-in-out duration-200 hover:bg-neutral-200 dark:hover:bg-neutral-800 outline-none text-left"}>
                   Create instance
                 </button>
               </DropdownMenu.Item>
@@ -394,13 +396,13 @@ export default function Home() {
         <div className={"flex flex-col gap-4 mb-4"}>
           {instances.map((instance) => {
             return (
-              <a key={instance.name} href={`/database/${data.Name}/instance/${instance.name}`} className={"group transition ease-in-out duration-200 py-2 px-3 border border-neutral-300 hover:border-neutral-400 rounded-lg flex items-center justify-between"}>
+              <a key={instance.name} href={`/database/${data.Name}/instance/${instance.name}`} className={"group transition ease-in-out duration-200 py-2 px-3 border border-neutral-300 hover:border-neutral-400 dark:border-neutral-700 dark:hover:border-neutral-600 rounded-lg flex items-center justify-between"}>
                 <div>
                   <div className={"flex items-center gap-3"}>
                     <div className={"text-xl font-medium"}>
                       {instance.name}
                     </div>
-                    <div className={`text-sm text-white font-medium rounded-md py-0.5 px-2 ${instance.type === "primary" ? "bg-green-400" : "bg-blue-400"}`}>
+                    <div className={`text-sm text-white font-medium rounded-md py-0.5 px-2 ${instance.type === "primary" ? "bg-green-400 dark:bg-green-500" : "bg-blue-400 dark:bg-blue-500"}`}>
                       {instance.type}
                     </div>
                   </div>
@@ -408,7 +410,7 @@ export default function Home() {
                     Region: {instance.region}
                   </div>
                 </div>
-                <ChevronRightIcon className={"h-6 w-6 text-neutral-300 group-hover:text-neutral-400 transition ease-in-out duration-200"} />
+                <ChevronRightIcon className={"h-6 w-6 text-neutral-300 group-hover:text-neutral-400 dark:text-neutral-700 dark:group-hover:text-neutral-600 transition ease-in-out duration-200"} />
               </a>
             );
           })}
