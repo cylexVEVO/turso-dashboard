@@ -94,15 +94,6 @@ const build = Deno.run({
 
 await build.status();
 
-const proxy = Deno.run({
-    cmd: [
-        "node",
-        "scripts/proxy.js"
-    ],
-    cwd: gitDir,
-    stdout: "null"
-});
-
 const start = Deno.run({
     cmd: [
         "npm",
@@ -119,7 +110,6 @@ setTimeout(() => open("http://localhost:3000"), 500);
 
 setHandler(() => {
     console.log("Stopping...");
-    proxy.kill();
     start.kill();
     Deno.exit(0);
 });
