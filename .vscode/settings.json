@@ -1,3 +1,6 @@
 {
-    "deno.enablePaths": ["./scripts/turso-dashboard.ts"]
+    "deno.enablePaths": [
+        "./scripts/turso-dashboard.ts"
+    ],
+    "typescript.tsdk": "node_modules/typescript/lib"
 }

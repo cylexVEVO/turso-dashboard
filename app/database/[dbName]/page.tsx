@@ -3,25 +3,20 @@ import { Turso, TursoError } from "@/turso";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { Actions } from "./Actions";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 export default async function Page({params}: {params: {dbName: string}}) {
-    const turso = new Turso(process.env.NEXT_PUBLIC_TURSO_TOKEN!);
+    const token = cookies().get("token");
+    if (!token) redirect("/token");
+    const turso = new Turso(token.value);
     const databaseP = turso.getDatabase(params.dbName);
     const instancesP = turso.listDatabaseInstances(params.dbName);
 
     const [database, instances] = await Promise.all([databaseP, instancesP]);
     
     if (database === TursoError.AUTHENTICATION_REQUIRED || instances === TursoError.AUTHENTICATION_REQUIRED) {
-        return (
-            <div>
-                <div className="text-3xl font-bold mb-2">
-                    Error: Authentication required
-                </div>
-                <div>
-                    Please make sure your Turso token is set correctly.
-                </div>
-            </div>
-        );
+        redirect("/token");
     }
 
     if (!database || !instances) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { createInstance, createToken } from "@/app/_actions";
+import { createInstance } from "@/app/_actions";
 import { Region } from "@/turso";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { useParams, useRouter } from "next/navigation";
@@ -65,7 +65,7 @@ export default function Page() {
                     <button
                         onClick={async () => {
                             setIsLoading(true);
-                            const res = await createInstance({ dbName: params.dbName, region: region as Region, image: version as "latest" | "canary", token: process.env.NEXT_PUBLIC_TURSO_TOKEN! });
+                            const res = await createInstance({ dbName: params.dbName, region: region as Region, image: version as "latest" | "canary" });
                             setIsLoading(false);
                             if (res === undefined) {
                                 router.refresh();

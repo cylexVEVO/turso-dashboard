@@ -2,22 +2,17 @@ import { TursoError } from "@/turso";
 import { Turso } from "@/turso";
 import { ChevronRightIcon, PlusCircleIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function Page() {
-    const turso = new Turso(process.env.NEXT_PUBLIC_TURSO_TOKEN!);
+    const token = cookies().get("token");
+    if (!token) redirect("/token");
+    const turso = new Turso(token.value);
     const databases = await turso.listDatabases();
 
     if (databases === TursoError.AUTHENTICATION_REQUIRED) {
-        return (
-            <div>
-                <div className="text-3xl font-bold mb-2">
-                    Error: Authentication required
-                </div>
-                <div>
-                    Please make sure your Turso token is set correctly.
-                </div>
-            </div>
-        );
+        redirect("/token");
     }
 
     return (

@@ -38,7 +38,7 @@ export default function Page() {
                     <button
                         onClick={async () => {
                             setIsLoading(true);
-                            const res = await destroyInstance({ database: params.dbName, instance: params.instanceName, token: process.env.NEXT_PUBLIC_TURSO_TOKEN! });
+                            const res = await destroyInstance({ database: params.dbName, instance: params.instanceName });
                             setIsLoading(false);
                             if (res === undefined) return router.push(`/database/${params.dbName}`);
                             window.alert(res);

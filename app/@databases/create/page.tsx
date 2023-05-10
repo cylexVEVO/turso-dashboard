@@ -81,7 +81,7 @@ export default function Page() {
                     <button
                         onClick={async () => {
                             setIsLoading(true);
-                            const res = await createDatabase({ name, region: region as Region, image: version as "latest" | "canary", instance: createInstance, token: process.env.NEXT_PUBLIC_TURSO_TOKEN! });
+                            const res = await createDatabase({ name, region: region as Region, image: version as "latest" | "canary", instance: createInstance });
                             setIsLoading(false);
                             if (res === undefined) return router.back();
                             window.alert(res);

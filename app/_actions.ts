@@ -5,18 +5,20 @@ import { zact } from "zact/server";
 import { Region, Turso } from "@/turso";
 import { TursoError } from "@/turso";
 import { revalidateTag } from "next/cache";
+import { cookies } from "next/headers";
 
 export const createDatabase = zact(
     z.object({
         name: z.string().trim().nonempty(),
         region: z.nativeEnum(Region),
         image: z.enum(["latest", "canary"]),
-        instance: z.boolean(),
-        token: z.string()
+        instance: z.boolean()
     })
 )(
     async (input) => {
-        const turso = new Turso(input.token);
+        const token = cookies().get("token");
+        if (!token) return "authentication required";
+        const turso = new Turso(token.value);
         const dbRes = await turso.createDatabase({name: input.name, region: input.region, image: input.image});
         if (dbRes === TursoError.AUTHENTICATION_REQUIRED) return "authentication required";
         if (dbRes === TursoError.DATABASE_LIMIT) return "database limit reached";
@@ -35,17 +37,18 @@ export const createToken = zact(
     z.object({
         database: z.string().trim().nonempty(),
         expires: z.boolean(),
-        readOnly: z.boolean(),
-        token: z.string()
+        readOnly: z.boolean()
     })
 )(
     async (input) => {
-        const turso = new Turso(input.token);
-        const token = await turso.createToken(input.database, input.expires ? "default" : "none", input.readOnly);
-        if (token === TursoError.AUTHENTICATION_REQUIRED) return "authentication required";
-        if (token === TursoError.NOT_FOUND) return "database not found";
+        const token = cookies().get("token");
+        if (!token) return "authentication required";
+        const turso = new Turso(token.value);
+        const dbToken = await turso.createToken(input.database, input.expires ? "default" : "none", input.readOnly);
+        if (dbToken === TursoError.AUTHENTICATION_REQUIRED) return "authentication required";
+        if (dbToken === TursoError.NOT_FOUND) return "database not found";
 
-        return token;
+        return dbToken;
     }
 );
 
@@ -53,12 +56,13 @@ export const createInstance = zact(
     z.object({
         dbName: z.string().trim().nonempty(),
         region: z.nativeEnum(Region),
-        image: z.enum(["latest", "canary"]),
-        token: z.string()
+        image: z.enum(["latest", "canary"])
     })
 )(
     async (input) => {
-        const turso = new Turso(input.token);
+        const token = cookies().get("token");
+        if (!token) return "authentication required";
+        const turso = new Turso(token.value);
         const instance = await turso.createDatabaseInstance({dbName: input.dbName, region: input.region, image: input.image});
         if (instance === TursoError.AUTHENTICATION_REQUIRED) return "authentication required";
         if (instance === TursoError.DATABASE_LIMIT) return "database limit reached";
@@ -69,12 +73,13 @@ export const createInstance = zact(
 
 export const rotateTokens = zact(
     z.object({
-        database: z.string().trim().nonempty(),
-        token: z.string()
+        database: z.string().trim().nonempty()
     })
 )(
     async (input) => {
-        const turso = new Turso(input.token);
+        const token = cookies().get("token");
+        if (!token) return "authentication required";
+        const turso = new Turso(token.value);
         const instance = await turso.rotateTokens(input.database);
         if (instance === TursoError.AUTHENTICATION_REQUIRED) return "authentication required";
         if (instance === TursoError.NOT_FOUND) return "database not found";
@@ -83,12 +88,13 @@ export const rotateTokens = zact(
 
 export const destroyDatabase = zact(
     z.object({
-        database: z.string().trim().nonempty(),
-        token: z.string()
+        database: z.string().trim().nonempty()
     })
 )(
     async (input) => {
-        const turso = new Turso(input.token);
+        const token = cookies().get("token");
+        if (!token) return "authentication required";
+        const turso = new Turso(token.value);
         const instance = await turso.deleteDatabase(input.database);
         if (instance === TursoError.AUTHENTICATION_REQUIRED) return "authentication required";
         if (instance === TursoError.NOT_FOUND) return "database not found";
@@ -98,15 +104,27 @@ export const destroyDatabase = zact(
 export const destroyInstance = zact(
     z.object({
         database: z.string().trim().nonempty(),
-        instance: z.string().trim().nonempty(),
-        token: z.string()
+        instance: z.string().trim().nonempty()
     })
 )(
     async (input) => {
-        const turso = new Turso(input.token);
+        const token = cookies().get("token");
+        if (!token) return "authentication required";
+        const turso = new Turso(token.value);
         const instance = await turso.deleteDatabaseInstance(input.database, input.instance);
         if (instance === TursoError.AUTHENTICATION_REQUIRED) return "authentication required";
         if (instance === TursoError.NOT_FOUND) return "database not found";
         if (instance === TursoError.BAD_REQUEST) return "cannot delete primary instance";
     }
 );
+
+export const setCookie = zact(
+    z.object({
+        token: z.string().trim().nonempty()
+    })
+)(
+    async (input) => {
+        // @ts-expect-error types aren't correct yet
+        cookies().set("token", input.token);
+    }
+)

@@ -37,7 +37,7 @@ export default function Page() {
                     <button
                         onClick={async () => {
                             setIsLoading(true);
-                            const res = await rotateTokens({ database: params.dbName, token: process.env.NEXT_PUBLIC_TURSO_TOKEN! });
+                            const res = await rotateTokens({ database: params.dbName });
                             setIsLoading(false);
                             if (res === undefined) return router.back();
                             window.alert(res);

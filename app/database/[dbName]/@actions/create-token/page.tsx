@@ -84,7 +84,7 @@ export default function Page() {
                     <button
                         onClick={async () => {
                             setIsLoading(true);
-                            const res = await createToken({ database: params.dbName, expires, readOnly, token: process.env.NEXT_PUBLIC_TURSO_TOKEN! });
+                            const res = await createToken({ database: params.dbName, expires, readOnly });
                             setIsLoading(false);
                             if (typeof res === "object") return setToken(res.jwt);
                             window.alert(res);
