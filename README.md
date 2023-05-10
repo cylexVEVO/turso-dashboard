@@ -1,6 +1,6 @@
 # How to use
 ## Hosted
-Hosted
+Available at https://turso.cylex.dog.
 ## Manually
 1. Start the application with `npm run build` and then `npm run start`. Navigate to `localhost:3000` to start using it!
 
