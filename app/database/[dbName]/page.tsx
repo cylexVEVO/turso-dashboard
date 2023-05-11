@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Actions } from "./Actions";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { Shell } from "./Shell";
 
 export default async function Page({params}: {params: {dbName: string}}) {
     const token = cookies().get("token");
@@ -80,6 +81,10 @@ export default async function Page({params}: {params: {dbName: string}}) {
                 {database.Hostname}
             </div>
             <ConnectionUrl hostname={database.Hostname} />
+            <div className={"text-xl font-medium mb-1"}>
+                Shell
+            </div>
+            <Shell hostname={database.Hostname}/>
         </>
     );
 }
