@@ -15,6 +15,16 @@ module.exports = {
       },
       animation: {
         fadeIn: "fadeIn 150ms ease"
+      },
+      colors: {
+        bgLight: "#f3f3f3",
+        bgDark: "#161616",
+        borderLight: "#e4e4e4",
+        borderDark: "#2c2c2c",
+        accentLight: "#ffffff",
+        accentDark: "#1b1b1b",
+        accent2Light: "#eeeeee",
+        accent2Dark: "#212121"
       }
     },
   },

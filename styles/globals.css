@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 body {
-    @apply dark:bg-neutral-950 dark:text-white;
+    @apply bg-bgLight dark:bg-bgDark dark:text-white;
 }
