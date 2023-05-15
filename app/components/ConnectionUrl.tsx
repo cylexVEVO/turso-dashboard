@@ -18,7 +18,7 @@ export const ConnectionUrl = ({hostname}: {hostname: string}) => {
             <div className="opacity-75 text-sm mb-1">
                 Connection URL
             </div>
-            <div className="font-mono rounded-lg flex w-full bg-accent2Light dark:bg-accent2Dark border border-borderLight dark:border-borderDark">
+            <div className="font-mono rounded-lg flex w-full bg-[#f9f9f9] dark:bg-accent2Dark border border-borderLight dark:border-borderDark">
                 <select
                     className="bg-transparent p-2 pl-3 border-r border-borderLight dark:border-borderDark"
                     value={protocol}

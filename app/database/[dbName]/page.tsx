@@ -1,4 +1,4 @@
-import { ConnectionUrl } from "@/components/ConnectionUrl";
+import { ConnectionUrl } from "@/app/components/ConnectionUrl";
 import { Turso, TursoError } from "@/turso";
 import { ChevronRightIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
