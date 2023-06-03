@@ -6,7 +6,7 @@ import { Actions } from "./Actions";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { Shell } from "./Shell";
-import { Hostname } from "./Hostname";
+import { Hostname } from "@/app/components/Hostname";
 
 export default async function Page({params}: {params: {dbName: string}}) {
     const token = cookies().get("token");

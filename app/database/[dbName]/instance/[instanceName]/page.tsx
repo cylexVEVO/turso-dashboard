@@ -1,4 +1,5 @@
 import { ConnectionUrl } from "@/app/components/ConnectionUrl";
+import { Hostname } from "@/app/components/Hostname";
 import { Turso, TursoError } from "@/turso";
 import { TrashIcon } from "@heroicons/react/24/solid";
 import { cookies } from "next/headers";
@@ -38,25 +39,26 @@ export default async function Page({params}: {params: {dbName: string, instanceN
                     <TrashIcon />
                 </Link>
             </div>
-            <div className={"text-xl font-medium"}>
-                Type
+            <div className="flex flex-col gap-2 border border-borderLight dark:border-borderDark bg-accentLight dark:bg-accentDark shadow-sm mb-4 px-4 pt-3 pb-4 rounded-xl">
+                <div>
+                    <div className="opacity-75 text-sm -mb-1">
+                        Type
+                    </div>
+                    <div className="text-2xl font-bold capitalize">
+                        {instance.type}
+                    </div>
+                </div>
+                <div>
+                    <div className="opacity-75 text-sm -mb-1">
+                        Region
+                    </div>
+                    <div className="text-2xl font-bold">
+                        {instance.region}
+                    </div>
+                </div>
+                <Hostname hostname={instance.hostname} />
+                <ConnectionUrl hostname={instance.hostname} />
             </div>
-            <div className={"opacity-75 mb-2"}>
-                {instance.type}
-            </div>
-            <div className={"text-xl font-medium"}>
-                Region
-            </div>
-            <div className={"opacity-75 mb-2"}>
-                {instance.region}
-            </div>
-            <div className={"text-xl font-medium"}>
-                Hostname
-            </div>
-            <div className={"opacity-75 mb-2"}>
-                {instance.hostname}
-            </div>
-            <ConnectionUrl hostname={instance.hostname} />
         </>
     );
 }
