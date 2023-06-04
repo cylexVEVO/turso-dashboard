@@ -2,26 +2,21 @@
 
 import { createClient, type Client, type ResultSet, LibsqlError } from "@libsql/client/web";
 import { useRef, useState } from "react";
-import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { BoltIcon, CheckIcon, PlayIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { shellProxy } from "@/app/_actions";
 
 export const Shell = ({hostname}: {hostname: string}) => {
     const [token, setToken] = useState("");
     const [connClosed, setConnClosed] = useState(true);
     const [query, setQuery] = useState("");
     const [result, setResult] = useState<ResultSet | null>(null);
-    const [error, setError] = useState<LibsqlError | null>(null);
+    const [error, setError] = useState<{ code: string, message: string } | null>(null);
     const [queryTime, setQueryTime] = useState(0);
     const [querying, setQuerying] = useState(false);
 
-    const client = useRef<Client | null>(null);
-
     const connect = () => {
         resetState();
-        client.current = createClient({
-            url: `https://${hostname}`,
-            authToken: token
-        });
-        setConnClosed(client.current.closed);
+        setConnClosed(false);
     };
 
     const resetState = () => {
@@ -34,62 +29,63 @@ export const Shell = ({hostname}: {hostname: string}) => {
     };
 
     const disconnect = () => {
-        if (!client.current) return;
-        client.current.close();
         resetState();
         setToken("");
     };
 
     const execute = async () => {
-        if (!client.current) return;
-        setConnClosed(client.current.closed);
-        if (client.current.closed) return;
-        const queryStart = new Date();
         setQuerying(true);
         console.log(`<< ${query}`);
-        try {
-            const res = await client.current.execute(query);
+        const res = await shellProxy({
+            token,
+            url: `https://${hostname}`,
+            query
+        });
+        // @ts-expect-error checking for error to do logic
+        if (res.res.code === undefined) {
             setError(null);
-            setResult(res);
-            console.log(">>", res);
-        } catch (e) {
+            setResult(res.res as ResultSet);
+            console.log(`>> ${query}\n`, res.res);
+        } else {
             setResult(null);
-            setError(e as LibsqlError);
-            console.error(">>", e);
+            setError(res.res as { code: string, message: string });
+            console.error(`>> ${query}\n`, res.res);
         }
-        setQueryTime(+new Date() - +queryStart);
+        setQueryTime(res.time);
         setQuerying(false);
     };
 
     if (!connClosed) {
         return (
-            <div className="rounded-lg border border-neutral-300 dark:border-neutral-700">
-                <div className="flex border-b border-neutral-300 dark:border-neutral-700">
-                    <input
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && execute()}
-                        placeholder="Enter a query..."
-                        className="bg-transparent grow py-2 px-3 font-mono outline-none"
-                        id="query-input"
-                        autoFocus />
-                    <button onClick={execute} className="py-2 px-4 border-l border-neutral-300 dark:border-neutral-700 min-w-[93.43px] flex justify-center items-center">
-                        {querying ? <Spinner size={16}/> : "Execute"}
+            <div className="rounded-xl border border-borderLight dark:border-borderDark bg-accentLight dark:bg-accentDark shadow-sm">
+                <div className="flex border-b border-borderLight dark:border-borderDark">
+                    <div className="flex flex-col w-full border-r border-borderLight dark:border-borderDark">
+                        <input
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && execute()}
+                            placeholder="Enter a query..."
+                            className="rounded-l-lg bg-transparent grow p-3 font-mono outline-none "
+                            id="query-input"
+                            autoFocus />
+                        <div className="flex items-center px-3 pb-2 -mt-3 text-sm text-black/75 dark:text-white/75 gap-1">
+                            {!(result || error) &&
+                                "No results yet"
+                            }
+                            {(result || error) &&
+                                <>
+                                    {result && <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400 mr-1" />}
+                                    {error && <XMarkIcon className="w-4 h-4 text-red-600 dark:text-red-500 mr-1" />}
+                                    <div>Took {queryTime} ms</div>
+                                    -
+                                    <div>{result?.rowsAffected ?? 0} rows affected</div>
+                                </>
+                            }
+                        </div>
+                    </div>
+                    <button onClick={execute} className="py-2 px-4 flex min-w-[52px] justify-center items-center transition ease-in-out duration-200 opacity-50 hover:opacity-100">
+                        {querying ? <Spinner size={16}/> : <BoltIcon className="w-5 h-5" />}
                     </button>
-                </div>
-                <div className="flex items-center px-3 py-2 text-sm text-black/75 dark:text-white/75 gap-1 border-b border-neutral-300 dark:border-neutral-700">
-                    {!(result || error) &&
-                        "No results yet"
-                    }
-                    {(result || error) &&
-                        <>
-                            {result && <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400 mr-1" />}
-                            {error && <XMarkIcon className="w-4 h-4 text-red-600 dark:text-red-500 mr-1" />}
-                            <div>Took {queryTime} ms</div>
-                            -
-                            <div>{result?.rowsAffected ?? 0} rows affected</div>
-                        </>
-                    }
                 </div>
                 {!(result || error) &&
                     <div className="opacity-75 text-sm p-3">
@@ -117,7 +113,7 @@ export const Shell = ({hostname}: {hostname: string}) => {
                         </thead>
                         <tbody>
                             {result!.rows.map((row, ri) => 
-                                <tr key={ri} className="border-t border-neutral-200 dark:border-neutral-900">
+                                <tr key={ri} className="border-t border-borderLight dark:border-borderDark">
                                     {Object.keys(row).map((key, ki) => 
                                         <td className="pl-4 pt-2 pb-2" key={`${ri}-${ki}`}>{row[key]?.toString()}</td>
                                     )}
@@ -131,15 +127,15 @@ export const Shell = ({hostname}: {hostname: string}) => {
     }
 
     return (
-        <div className="rounded-lg border border-neutral-300 dark:border-neutral-700 flex">
+        <div className="rounded-xl border border-borderLight dark:border-borderDark bg-accentLight dark:bg-accentDark shadow-sm flex">
             <input
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && connect()}
                 placeholder="Enter token to connect..."
-                className="rounded-l-lg bg-transparent border-neutral-300 dark:border-neutral-700 grow py-2 px-3 font-mono outline-none" />
-            <button onClick={connect} className="border-l border-neutral-300 dark:border-neutral-700 py-2 px-4">
-                Connect
+                className="rounded-l-lg bg-transparent grow p-3 font-mono outline-none border-r border-borderLight dark:border-borderDark" />
+            <button onClick={connect} className="py-2 px-4 transition ease-in-out duration-200 opacity-50 hover:opacity-100">
+                <PlayIcon className="w-5 h-5" />
             </button>
         </div>
     );

@@ -6,6 +6,7 @@ import { Region, Turso } from "@/turso";
 import { TursoError } from "@/turso";
 import { revalidateTag } from "next/cache";
 import { cookies } from "next/headers";
+import { LibsqlError, ResultSet, createClient } from "@libsql/client/web";
 
 export const createDatabase = zact(
     z.object({
@@ -127,4 +128,36 @@ export const setCookie = zact(
         // @ts-expect-error types aren't correct yet
         cookies().set("token", input.token);
     }
-)
+);
+
+export const shellProxy = zact(
+    z.object({
+        token: z.string().trim().nonempty(),
+        url: z.string().url(),
+        query: z.string()
+    })
+)(
+    async (input) => {
+        const client = createClient({
+            url: input.url,
+            authToken: input.token
+        });
+
+        let res: ResultSet | { code: string, message: string } | null = null;
+
+        const queryStart = new Date();
+
+        try {
+            res = await client.execute(input.query);
+        } catch (e) {
+            res = { code: (e as LibsqlError).code, message: (e as LibsqlError).message };
+        }
+
+        const queryTime = +new Date() - +queryStart;
+
+        return {
+            res,
+            time: queryTime
+        };
+    }
+);
