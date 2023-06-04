@@ -27,7 +27,7 @@ export const ConnectionUrl = ({hostname}: {hostname: string}) => {
                     <option value="http">http://</option>
                     <option value="https">https://</option>
                 </select>
-                <div className="grow whitespace-nowrap overflow-x-scroll p-2 px-3 pr-8 ">
+                <div className="grow whitespace-nowrap overflow-x-auto p-2 px-3 pr-8 ">
                     {hostname}
                 </div>
                 <div className="flex justify-center h-[42px] w-[42px]">
