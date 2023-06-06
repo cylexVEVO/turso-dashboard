@@ -33,6 +33,43 @@ export enum Region {
     yyz = "yyz"
 }
 
+export const regions = [
+  { code: "ams", location: "Amsterdam, Netherlands" },
+  { code: "arn", location: "Stockholm, Sweden" },
+  { code: "atl", location: "Atlanta, Georgia (US)" },
+  { code: "bog", location: "Bogotá, Colombia" },
+  { code: "bos", location: "Boston, Massachusetts (US)" },
+  { code: "cdg", location: "Paris, France" },
+  { code: "den", location: "Denver, Colorado (US)" },
+  { code: "dfw", location: "Dallas, Texas (US)" },
+  { code: "ewr", location: "Secaucus, NJ (US)" },
+  { code: "eze", location: "Ezeiza, Argentina" },
+  { code: "fra", location: "Frankfurt, Germany" },
+  { code: "gdl", location: "Guadalajara, Mexico" },
+  { code: "gig", location: "Rio de Janeiro, Brazil" },
+  { code: "gru", location: "São Paulo, Brazil" },
+  { code: "hkg", location: "Hong Kong, Hong Kong" },
+  { code: "iad", location: "Ashburn, Virginia (US)" },
+  { code: "jnb", location: "Johannesburg, South Africa" },
+  { code: "lax", location: "Los Angeles, California (US)" },
+  { code: "lhr", location: "London, United Kingdom" },
+  { code: "maa", location: "Chennai (Madras), India" },
+  { code: "mad", location: "Madrid, Spain" },
+  { code: "mia", location: "Miami, Florida (US)" },
+  { code: "nrt", location: "Tokyo, Japan" },
+  { code: "ord", location: "Chicago, Illinois (US)" },
+  { code: "otp", location: "Bucharest, Romania" },
+  { code: "qro", location: "Querétaro, Mexico" },
+  { code: "scl", location: "Santiago, Chile" },
+  { code: "sea", location: "Seattle, Washington (US)" },
+  { code: "sin", location: "Singapore, Singapore" },
+  { code: "sjc", location: "San Jose, California (US)" },
+  { code: "syd", location: "Sydney, Australia" },
+  { code: "waw", location: "Warsaw, Poland" },
+  { code: "yul", location: "Montreal, Canada" },
+  { code: "yyz", location: "Toronto, Canada" }
+] as const;
+
 export type Database = {
     Name: string,
     Hostname: string,

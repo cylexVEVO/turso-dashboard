@@ -3,16 +3,9 @@
 import { createInstance } from "@/app/_actions";
 import { Button } from "@/app/components/Button";
 import { Modal } from "@/app/components/Modal";
-import { Region } from "@/turso";
+import { Region, regions } from "@/turso";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-
-const regions: string[] = [];
-
-for (const enumKey in Region) {
-    // take only strings (the region names)
-    if (Number.isNaN(Number(enumKey))) regions.push(enumKey);
-}
 
 export default function Page() {
     const params = useParams() as { dbName: string };
@@ -38,8 +31,8 @@ export default function Page() {
                         value={region}
                         onChange={(e) => setRegion(e.target.value)}
                         className="transition ease-in-out duration-200 rounded-lg py-2 px-3 bg-accent2Light dark:bg-accent2Dark min-h-[40px]">
-                        {regions.map((region) => (
-                            <option value={region} key={region}>{region}</option>
+                        {regions.map(({code, location}) => (
+                            <option value={code} key={code}>{location} - {code}</option>
                         ))}
                     </select>
                 </fieldset>

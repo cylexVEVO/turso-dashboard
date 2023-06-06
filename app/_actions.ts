@@ -125,7 +125,6 @@ export const setCookie = zact(
     })
 )(
     async (input) => {
-        // @ts-expect-error types aren't correct yet
         cookies().set("token", input.token);
     }
 );
