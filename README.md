@@ -6,7 +6,6 @@ Available at https://turso.cylex.dog.
 
 # Roadmap
 - Statistics from `turso db inspect`
-- Improved region selector
 - Show database version
 - Update database version
 
