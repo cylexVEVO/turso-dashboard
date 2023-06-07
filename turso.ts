@@ -166,6 +166,45 @@ export class Turso {
        return res;
     }
 
+    // TODO: implement this eventually
+    static async probeRegion(region: Region) {
+        const start = new Date();
+        void await fetch("http://region.turso.io:8080", {
+            headers: {
+                "fly-prefer-region": region
+            },
+            cache: "no-store",
+            next: {
+                tags: ["turso"]
+            }
+        });
+        const time = +new Date() - +start;
+
+        return time;
+    }
+
+    static async probeRegions() {
+        const probed: { region: Region, time: number }[] = [];
+
+        await Promise.allSettled(regions.map(async ({code}) => {
+            const time = await this.probeRegion(code as Region);
+            probed.push({region: code as Region, time: time});
+        }));
+
+        return probed;
+    }
+
+    static async closestRegion() {
+        const res = await (await fetch("https://region.turso.io", {
+            cache: "no-store",
+            next: {
+                tags: ["turso"]
+            }
+        })).json() as {server: Region};
+
+        return res.server;
+    }
+
     async listDatabases() {
         const res = await this.get("databases");
         if (res.status === 401) return TursoError.AUTHENTICATION_REQUIRED;
