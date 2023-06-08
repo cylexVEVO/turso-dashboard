@@ -38,7 +38,7 @@ export default function Page() {
                         <div className="bg-accent2Light dark:bg-accent2Dark rounded-lg whitespace-nowrap overflow-x-scroll p-2 px-3 pr-8 border border-borderLight dark:border-borderDark">
                             {token}
                         </div>
-                        <div className="absolute -translate-y-1/2 right-0 top-1/2 flex justify-center bg-accent2Light dark:bg-accent2Dark h-[42px] w-[42px] rounded-r-lg border-y border-r border-borderLight dark:border-borderDark">
+                        <div className="absolute -translate-y-1/2 right-0 top-1/2 flex justify-center bg-accent2Light dark:bg-accent2Dark h-[42px] w-[42px] rounded-r-lg">
                             <button
                                 className="transition ease-in-out duration-200 opacity-50 hover:opacity-100"
                                 onClick={copy}>
