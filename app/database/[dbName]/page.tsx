@@ -87,7 +87,7 @@ export default async function Page({params}: {params: {dbName: string}}) {
             <div className={"text-xl font-medium mb-1"}>
                 Shell
             </div>
-            <Shell hostname={database.Hostname}/>
+            <Shell hostname={database.Hostname} dbName={database.Name} />
         </>
     );
 }

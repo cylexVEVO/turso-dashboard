@@ -1,11 +1,11 @@
 "use client";
 
-import { createClient, type Client, type ResultSet, LibsqlError } from "@libsql/client/web";
-import { useRef, useState } from "react";
-import { BoltIcon, CheckIcon, PlayIcon, XMarkIcon } from "@heroicons/react/20/solid";
-import { shellProxy } from "@/app/_actions";
+import { type ResultSet } from "@libsql/client/web";
+import { useState } from "react";
+import { BoltIcon, CheckIcon, ChevronRightIcon, PlayIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { createToken, shellProxy } from "@/app/_actions";
 
-export const Shell = ({hostname}: {hostname: string}) => {
+export const Shell = ({hostname, dbName}: {hostname: string, dbName: string}) => {
     const [token, setToken] = useState("");
     const [connClosed, setConnClosed] = useState(true);
     const [query, setQuery] = useState("");
@@ -13,10 +13,18 @@ export const Shell = ({hostname}: {hostname: string}) => {
     const [error, setError] = useState<{ code: string, message: string } | null>(null);
     const [queryTime, setQueryTime] = useState(0);
     const [querying, setQuerying] = useState(false);
+    const [connMode, setConnMode] = useState<"auto" | "manual">("auto");
 
     const connect = () => {
         resetState();
         setConnClosed(false);
+    };
+
+    const autoConnect = async () => {
+        const res = await createToken({ database: dbName, expires: true, readOnly: false });
+        if (typeof res !== "object") return window.alert(res);
+        setToken(res.jwt);
+        connect();
     };
 
     const resetState = () => {
@@ -122,6 +130,23 @@ export const Shell = ({hostname}: {hostname: string}) => {
                         </tbody>
                     </table>
                 }
+            </div>
+        );
+    }
+
+    if (connMode === "auto") {
+        return (
+            <div className="rounded-xl border border-borderLight dark:border-borderDark bg-accentLight dark:bg-accentDark shadow-sm flex flex-col">
+                <button onClick={autoConnect} className="py-3 px-4 transition ease-in-out duration-200 opacity-50 hover:opacity-100 flex items-center gap-2">
+                    <PlayIcon className="w-4 h-4" />
+                    Connect
+                </button>
+                <button
+                    className="transition ease-in-out duration-200 opacity-50 hover:opacity-100 flex items-center gap-1 px-4 pb-2 text-sm"
+                    onClick={() => setConnMode("manual")}>
+                    Enter token manually
+                    <ChevronRightIcon className="w-4 h-4" />
+                </button>
             </div>
         );
     }
