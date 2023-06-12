@@ -9,6 +9,12 @@ export default function Page() {
     const [token, setToken] = useState("");
     const router = useRouter();
 
+    const submit = () => {
+        setCookie({ token: token }).then(() => {
+            router.push("/");
+        });
+    };
+
     return (
         <>
             <div className="flex items-center justify-between mb-4">
@@ -28,15 +34,13 @@ export default function Page() {
                     placeholder="Turso token"
                     value={token}
                     onChange={(e) => setToken(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") submit();
+                    }}
                     className="transition ease-in-out duration-200 rounded-lg py-2 px-3 bg-accent2Light dark:bg-accent2Dark" />
             </fieldset>
             <div className="flex justify-end">
-                <Button
-                    onClick={() => {
-                        setCookie({token: token}).then(() => {
-                            router.push("/");
-                        });
-                    }}>
+                <Button onClick={submit}>
                     Set token
                 </Button>
             </div>
