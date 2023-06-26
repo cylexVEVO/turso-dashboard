@@ -125,7 +125,7 @@ export const setCookie = zact(
     })
 )(
     async (input) => {
-        cookies().set("token", input.token);
+        cookies().set("token", input.token, { expires: +new Date() + 86400000 * 30, secure: true, httpOnly: true });
     }
 );
 
