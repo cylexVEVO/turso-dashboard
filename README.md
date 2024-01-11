@@ -1,3 +1,5 @@
+# Turso Dashboard is deprecated
+Use Turso's official dashboard instead.
 # How to use
 ## Hosted
 Available at https://turso.cylex.dog.
